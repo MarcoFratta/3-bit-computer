@@ -5,7 +5,7 @@ import org.scalatest.matchers.must.Matchers
 
 class OperandsTest extends AnyFlatSpec with Matchers:
 
-  val state = State(15,16,17)
+  val state = State(0,15,16,17)
   "a literal operand between 0 and 7" must " return that value" in {
     List.range(0, 8)
       .map(literal)
