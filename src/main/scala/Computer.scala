@@ -1,6 +1,3 @@
-trait Bits extends (()=>Int)
-
-
 object Computer:
   
   case class State(ip:Int, x: Int, y: Int, z:Int)
