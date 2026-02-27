@@ -1,57 +1,59 @@
+import GuardedSequenceReader.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import IntInputReader.*
 class InputReaderTest extends AnyFlatSpec with Matchers:
 
-  "The string -> conversion" should "work" in {
-    val input = "-3,4,5,34"
-    input.toIntValues shouldEqual Seq(-3,4,5,34)
-  }
-
-  "The program input" should "correctly read values given a correct index" in {
+  "The sequence input reader" should "correctly read values given a correct index" in {
     val input = "1,2,3"
-    Builder(input.toIntValues).build().read(2) match
+    SequenceReader(input).read(4) match
       case Left(value) => fail()
-      case Right(value) => value shouldEqual Some(3)
+      case Right(value) => value shouldEqual Some('3')
+  }
+  "The string -> conversion" should "work" in {
+    val input = "-3,4,5,34".split(",")
+    val reader = SequenceReader(input)
+    reader.mapValues(_.toInt).read(2) match
+      case Left(value) => fail()
+      case Right(value) => value shouldBe Some(5)
   }
 
-  "The program input" should "fail values given a incorrect index" in {
-    val input = "1,2,3"
-    Builder(input.toIntValues).build().read(-1) match
+  "The input reader" should "fail values given a incorrect index" in {
+    val input = "1,2,3".split(",")
+    SequenceReader(input).mapValues(_.toInt).read(-1) match
       case Left(value) => value.getMessage should not be empty
       case Right(value) => fail()
   }
 
   "Attempting to read after all values have been red" should "not fail but return an empty Option" in {
-    val input = "1,2,3"
-    Builder(input.toIntValues).build().read(4) match
+    val input = "1,2,3".split(",")
+    SequenceReader(input).mapValues(_.toInt).read(4) match
       case Left(value) => fail()
       case Right(value) => value shouldBe None
   }
   "Min value check" should "fail if a value is < min" in {
-    val input = "1,2,3"
-    val inputProgram = Builder(input.toIntValues).min(3).build()
+    val input = "1,2,3".split(",")
+    val inputProgram = SequenceReader(input).mapValues(_.toInt).withGuards + min(3)
     inputProgram.read(1) match
       case Left(value) =>
-      case Right(value) => fail()
+      case Right(value) => fail(s"value was $value")
   }
   "Reading out of bounds" should "return None even with min check" in {
-    val input = "1,2,3,4"
-    val inputProgram = Builder(input.toIntValues).min(3).build()
+    val input = "1,2,3,4".split(",")
+    val inputProgram = SequenceReader(input).mapValues(_.toInt).withGuards + min(6)
     inputProgram.read(5) match
       case Left(value) => fail()
       case Right(value) => value shouldBe None
   }
   "Max value check" should "fail if a value is > max" in {
-    val input = "1,2,3"
-    val inputProgram = Builder(input.toIntValues).max(1).build()
+    val input = "1,2,3".split(",")
+    val inputProgram = SequenceReader(input).mapValues(_.toInt).withGuards + max(1)
     inputProgram.read(2) match
       case Left(value) =>
       case Right(value) => fail()
   }
   "Min and max value check" should "both work together" in {
-    val input = "1,2,-1,6,7,8"
-    val inputProgram = Builder(input.toIntValues).min(0).max(7).build()
+    val input = "1,2,-1,6,7,8".split(",")
+    val inputProgram = SequenceReader(input).mapValues(_.toInt).withGuards + min(0) + max(7)
     inputProgram.read(2) match
       case Left(value) =>
       case Right(value) => fail(s"Value was $value")
