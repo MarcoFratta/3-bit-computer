@@ -4,12 +4,12 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class InstructionsFactoryTest extends AnyFlatSpec with Matchers:
-  private val factory = ThreeBitsComputer
+  private val instructions = ThreeBitsComputerFacade.instructions
   "Get for three bits" should "return 8 operations" in {
-    factory.getForThreeBits.size shouldBe 8
+    instructions.size shouldBe 8
   }
   "OpCodes" should "be correct for each instruction" in {
-    val map = factory.getForThreeBits.map(x => x._1 -> x._2.getClass)
+    val map = instructions.map(x => x._1 -> x._2.getClass)
     map(0) shouldEqual Xdv(identity).getClass
     map(1) shouldEqual Yxl(identity).getClass
     map(2) shouldEqual Yst(3, identity).getClass
