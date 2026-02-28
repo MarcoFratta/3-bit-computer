@@ -1,4 +1,4 @@
-import Computer.State
+import SingleOperandComputer.State
 
 trait Operand[T] extends (State => T)
 

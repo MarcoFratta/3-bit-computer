@@ -1,5 +1,5 @@
-import Computer.State
 import Operands.*
+import SingleOperandComputer.State
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 

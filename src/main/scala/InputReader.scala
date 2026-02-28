@@ -11,15 +11,15 @@ class SequenceReader[T](val input:Seq[T]) extends InputReader[T]:
 
 object GuardedSequenceReader:
   private type Guard[T] = T => Either[Error, T]
-  sealed case class GuardedBuilder[T](override val input:Seq[T], guards: Set[Guard[T]]) 
+  sealed case class GuardedBuilder[T](override val input:Seq[T], guards: Set[Guard[T]])
     extends SequenceReader[T](input):
     override def read(p: Int): Either[Error, Option[T]] = super.read(p) match
       case v@Left(value) => v
       case Right(value) => value match
         case Some(x) => guards.foldLeft(Right(x): Either[Error, T])(_.flatMap(_)).map(Some(_))
         case None => Right(None)
-        
-        
+
+
   extension[T](reader: SequenceReader[T])
     def withGuards: GuardedBuilder[T] = GuardedBuilder(reader.input, Set())
   extension [T](builder: GuardedBuilder[T])
