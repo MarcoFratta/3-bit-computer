@@ -7,9 +7,9 @@ import scala.util.{Failure, Success, Try}
 trait Instruction[T] extends ((State, T) => Try[(State, Option[T])])
 
 trait IpIncrement[T](step: Int) extends Instruction[T]:
-  abstract override def apply(s: State, operand: T): Try[(State, Option[T])] =   
+  abstract override def apply(s: State, operand: T): Try[(State, Option[T])] =
     super.apply(s, operand).map((s2, o) =>  s2.copy(ip = s2.ip + step) -> o)
-   
+
 
 abstract class BasicOperation[T](f: (State, T) => (State, Option[T])) extends Instruction[T]:
   override def apply(s: State, operand: T): Try[(State, Option[T])] = Try {

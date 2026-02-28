@@ -23,7 +23,7 @@ object ThreeBitsComputerFacade:
   
     def apply(logErrors:Boolean=false): State => Computer[OpCode, ? >: Seq[String] & Seq[OpCode] <: Seq[Any]] = 
       if logErrors 
-        then SingleOperandComputer.withErrors(instructions)
+        then SingleOperandComputer.withLoopDetection(instructions)
       else SingleOperandComputer.ignoreErrors(instructions)
       
     

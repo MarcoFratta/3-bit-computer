@@ -13,12 +13,12 @@ class ComputerTest extends AnyFlatSpec with Matchers:
   "A computer program 1 " should "produce the correct output" in {
     val input =  "0,1,5,4,3,0"
     val initState = State(0,3729,0,0)
-    testInputOutput(input)(initState) shouldEqual Seq(0,4,2,1,4,2,5,6,7,3,1,0)
+    testInputOutput(input)(initState, true) shouldEqual Seq(0,4,2,1,4,2,5,6,7,3,1,0).map(_.toString)
   }
   "A computer program 2 " should "produce the correct output" in {
     val input = "0,3,5,4,3,0"
     val initState = State(0, 8642024, 0, 0)
-    testInputOutput(input)(initState) shouldEqual Seq(5,7,6,5,7,0,4,0)
+    testInputOutput(input)(initState, true) shouldEqual Seq(5,7,6,5,7,0,4,0).map(_.toString)
   }
   "A computer program " should "fail for an incorrect input" in {
     val input = "0,3,8,4,3,0"
@@ -35,8 +35,18 @@ class ComputerTest extends AnyFlatSpec with Matchers:
     val initState = State(0, 100, 0, 0)
     testInputOutput(input)(initState, true).head shouldEqual "Values must be >= 0"
   }
-//  "A computer program" should "fail for an odd number of inputs" in {
-//    val input = "3,0,3"
-//    val initState = State(0, 100, 0, 0)
-//    testInputOutput(input)(initState, true).head shouldEqual "Unex"
-//  }
+  "A computer program" should "fail for an odd number of inputs" in {
+    val input = "3,0,3"
+    val initState = State(2, 100, 0, 0)
+    testInputOutput(input)(initState, true).head shouldEqual "Unexpected end of input, expected operand at 3"
+  }
+  "A computer program" should "fail if it detects a loop" in {
+    val input = "3,0,3"
+    val initState = State(0, 100, 0, 0)
+    testInputOutput(input)(initState, true).head shouldEqual "Loop detected at 0"
+  }
+  "A computer program " should "detect loop if has a jump to the start at the end" in {
+    val input = "0,1,5,4,2,0,3,2"
+    val initState = State(0, 3729, 0, 0)
+    testInputOutput(input)(initState, true).last shouldEqual "Loop detected at 2"
+  }
