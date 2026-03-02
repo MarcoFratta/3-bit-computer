@@ -11,5 +11,6 @@ object Main:
       .withGuards + min(0) + max(7)
     val computer = ThreeBitsComputer.withLoopDetection
     val initState = state(0, x, y, z)
-    println(s"result: ${computer(initState).compute(input).mkString(",")}")
+    val res = computer(initState).compute(input)
+    println(s"result: ${res.mkString(",")}")
 
