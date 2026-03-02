@@ -26,7 +26,7 @@ object GuardedSequenceReader:
     def + (guard: Guard[T]): GuardedBuilder[T] = builder.copy(guards = builder.guards + guard)
 
   def min[T:Ordering](min: T): Guard[T] = {
-      case v if v < min => Left(Error(s"Values must be >= ${min}"))
+      case v if v < min => Left(Error(s"Values must be >= $min"))
       case v => Right(v)
     }
 

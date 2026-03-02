@@ -1,12 +1,12 @@
-import SingleOperandComputer.State
-
-trait Operand[T] extends (State => T)
+trait Operand[S, R] extends (S => R)
 
 object Operands:
-  type OperandPolicy[T] = T => Operand[T]
-  def identity[T](value: T): Operand[T] = _ => value
-  def withOverride[T](ov: (T, Operand[T]))(value:T):Operand[T] = withOverrides(Seq(ov)*)(value)
-  def withOverrides[T](overrides: (T,Operand[T])*)(value:T): Operand[T] = withOverrides(overrides.toMap)(value)
-  def withOverrides[T](overrides: Map[T, Operand[T]])(value: T): Operand[T] = value match
+  // We choose which operand we want to use based on the value of the operand
+  type OperandPolicy[S, R] = (R, Operand[S, R])
+  def identity[S, R](value: R): Operand[S, R] = _ => value
+  def withOverride[S, R](ov: OperandPolicy[S, R])(value:R):Operand[S, R] = withOverrides(Seq(ov)*)(value)
+  def withOverrides[S, R](overrides: OperandPolicy[S, R]*)(value:R): Operand[S, R] = fromMap(overrides.toMap)(value)
+  
+  private def fromMap[S, R](overrides: Map[R, Operand[S, R]])(value: R): Operand[S, R] = value match
     case n if overrides isDefinedAt n => overrides(n)
     case n => identity(n)

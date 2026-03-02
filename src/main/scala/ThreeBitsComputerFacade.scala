@@ -1,27 +1,30 @@
+import Operands.withOverrides
+import RegistryOps.*
+import ThreeBitsInstruction.*
+import ThreeBitsState.Registry.*
+import ThreeBitsState.*
 import Operands.*
-import SingleOperandComputer.State
-import SingleOperandInstructions.*
+import ThreeBitsState.given
 
 object ThreeBitsComputerFacade:
-  private type OpCode = Int
-  private val threeBitCombo = withOverrides(
-    4 -> (_.x),
-    5 -> (_.y),
-    6 -> (_.z),
+  val threeBitCombo: ValueType => Operand[State, ValueType] = withOverrides[State, ValueType](
+    4 -> (_(X)),
+    5 -> (_(Y)),
+    6 -> (_(Z)),
     7 -> {_ => throw IllegalArgumentException("7 is not a valid combo argument")}
   )
-  private val literal = identity[Int]
+  private val literal = identity[State, ValueType]
   // This design allows for reusing operations even for
   // computer with different architectures (4 bits, 5 bits ...)
   val bits = 3
-  val instructions: Map[OpCode, Instruction[Int]] = Seq(Xdv(threeBitCombo), Yxl(literal),
-      Yst(bits, threeBitCombo), Jnz(literal),
-      Yxz(), Out(bits, threeBitCombo),
-      Ydv(threeBitCombo), Zdv(threeBitCombo))
+  val instructions: Map[Int, Instruction[State, ValueType, ValueType]] = Seq(xdv(threeBitCombo), yxl(literal),
+      yst(bits, threeBitCombo), jnz(literal),
+      yxz, out(bits, threeBitCombo),
+      ydv(threeBitCombo), zdv(threeBitCombo))
       .zipWithIndex
       .map(_.reverse).toMap
   
-    def apply(logErrors:Boolean=false): State => Computer[OpCode, ? >: Seq[String] & Seq[OpCode] <: Seq[Any]] = 
+    def apply(logErrors:Boolean=false): State => Computer[ValueType, ? >: Seq[String] & Seq[ValueType] <: Seq[Any]] = 
       if logErrors 
         then SingleOperandComputer.withLoopDetection(instructions)
       else SingleOperandComputer.ignoreErrors(instructions)

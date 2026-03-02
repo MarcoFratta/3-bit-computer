@@ -1,8 +1,14 @@
+import BaseState.IP
+
 import scala.util.{Failure, Success}
+import RegistryOps.*
+
 
 trait Computer[I, O]:
   def compute(input: InputReader[I]): O
 
+enum BaseState:
+  case IP
 
 object SingleOperandComputer:
 
@@ -10,9 +16,8 @@ object SingleOperandComputer:
     case Left(value) => Some(value.getMessage)
     case Right(value) => Some(value.toString)
 
-  case class State(ip: Int, x: Int, y: Int, z: Int)
-
-  def ignoreErrors[T](instructions: Map[T, Instruction[T]])(initState: State): Computer[T, Seq[T]] = i =>
+  def ignoreErrors[S, I, O](instructions: Map[I, Instruction[S, I, O]])(initState: S)
+                           (using ip: IpOps[S]): Computer[I, Seq[O]] = i =>
     LazyList.unfold(initState)(s => for
       // read the opcode based on ip
       opCode <- i.read(s.ip).toOption.flatten
@@ -25,8 +30,9 @@ object SingleOperandComputer:
     yield (out, s2)).flatten
 
 
-  def withLoopDetection[T](instructions: Map[T, Instruction[T]])(initState: State): Computer[T, Seq[String]] = i =>
-    LazyList.unfold(Option(initState, Map[Int, State]()))(s => for
+  def withLoopDetection[S, I, O](instructions: Map[I, Instruction[S, I, O]])(initState: S)
+                                (using ip: IpOps[S]): Computer[I, Seq[String]] = i =>
+    LazyList.unfold(Option(initState, Map[Int, S]()))(s => for
       // reading na emtpy state will stop execution
       (state, hist) <- s
       r1 = i.read(state.ip)
@@ -46,7 +52,8 @@ object SingleOperandComputer:
       case _ => (None, None)).flatten
 
 
-  def withErrors[T](instructions: Map[T, Instruction[T]])(initState: State): Computer[T, Seq[String]] = i =>
+  def withErrors[S, I, O](instructions: Map[I, Instruction[S, I, O]])(initState: S)
+                         (using ip: IpOps[S]): Computer[I, Seq[String]] = i =>
     LazyList.unfold(Option(initState))(s => for
       // reading na emtpy state will stop execution
       state <- s
