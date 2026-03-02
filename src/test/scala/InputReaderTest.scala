@@ -1,4 +1,5 @@
-import GuardedSequenceReader.*
+import computer.GuardedSequenceReader.*
+import computer.SequenceReader
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 class InputReaderTest extends AnyFlatSpec with Matchers:

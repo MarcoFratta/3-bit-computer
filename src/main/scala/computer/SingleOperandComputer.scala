@@ -1,3 +1,5 @@
+package computer
+
 import scala.util.{Failure, Success}
 
 object SingleOperandComputer:

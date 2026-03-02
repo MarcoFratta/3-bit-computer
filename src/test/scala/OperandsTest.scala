@@ -1,8 +1,8 @@
-import Operands.*
-import RegistryOps.*
-import ThreeBitsComputer.threeBitCombo
-import ThreeBitsState.Registry.*
-import ThreeBitsState.*
+import computer.Operands.*
+import computer.RegistryOps.*
+import threeBits.ThreeBitsComputer.threeBitCombo
+import threeBits.ThreeBitsState.Registry.*
+import threeBits.ThreeBitsState.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
@@ -11,7 +11,7 @@ class OperandsTest extends AnyFlatSpec with Matchers:
   private val s = state(0,15,16,17)
   "a literal operand between 0 and 7" must " return that value" in {
     List.range(0, 8)
-      .map(identity)
+      .map(literal)
       .map(_(s))
       .zipWithIndex
       .forall((i, v) => i.equals(v)) mustBe true

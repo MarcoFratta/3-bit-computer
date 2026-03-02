@@ -1,5 +1,7 @@
-import ThreeBitsState.Registry.*
+package threeBits
 
+import threeBits.ThreeBitsState.Registry.*
+import computer.*
 
 object ThreeBitsState:
   type ValueType = Int

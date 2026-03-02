@@ -1,3 +1,5 @@
+package computer
+
 import scala.math.Ordering.Implicits.*
 
 class SequenceReader[T](val input: Seq[T]) extends InputReader[T]:

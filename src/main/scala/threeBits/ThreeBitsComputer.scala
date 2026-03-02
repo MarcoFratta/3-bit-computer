@@ -1,8 +1,12 @@
-import Operands.*
-import RegistryOps.*
-import ThreeBitsInstruction.*
-import ThreeBitsState.Registry.*
-import ThreeBitsState.{*, given}
+package threeBits
+
+import computer.*
+import computer.Operands.withOverrides
+import computer.RegistryOps.*
+import threeBits.ThreeBitsInstruction.*
+import threeBits.ThreeBitsState.Registry.*
+import threeBits.ThreeBitsState.{*, given}
+import computer.Operands.literal
 
 object ThreeBitsComputer:
   val bits = 3
@@ -15,7 +19,6 @@ object ThreeBitsComputer:
   )
   // This design allows for reusing operations even for
   // computer with different architectures (4 bits, 5 bits ...)
-  private val literal = identity[State, ValueType]
   val instructions: Map[Int, Instruction[State, ValueType, ValueType]] = Seq(
     xdv(threeBitCombo), yxl(literal),
     yst(bits, threeBitCombo), jnz(literal),

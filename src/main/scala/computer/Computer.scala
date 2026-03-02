@@ -1,3 +1,5 @@
+package computer
+
 import scala.util.Try
 // given an input I from an input Reader, produces an output O
 trait Computer[I, O]:

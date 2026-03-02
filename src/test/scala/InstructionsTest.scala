@@ -1,12 +1,14 @@
-import Operands.*
-import ThreeBitsInstruction.*
-import ThreeBitsState.Registry.*
-import ThreeBitsState.{Registry, State}
+import computer.Operands.withOverrides
+import computer.RegistryOps
+import threeBits.ThreeBitsInstruction.*
+import threeBits.ThreeBitsState.Registry.*
+import threeBits.ThreeBitsState.{Registry, State}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import ThreeBitsState.state
-import RegistryOps.*
-import ThreeBitsState.given 
+import threeBits.ThreeBitsState.state
+import computer.RegistryOps.*
+import threeBits.ThreeBitsState.given
+import computer.Operands.literal
 
 import scala.util.{Failure, Success}
 
@@ -38,13 +40,13 @@ class InstructionsTest extends AnyFlatSpec with Matchers:
 
   // opCode 1
   "yxl(y = 2, operand = 5)" should "set y = 7" in {
-    val instruction = yxl(identity)
+    val instruction = yxl(literal)
     val s = state(0, 0, 2, 0)
     instruction(s, 5).get._1.y shouldBe 7
   }
 
   "yxl(y = 0, operand = 0)" should "set y = 0" in {
-    val instruction = yxl(identity)
+    val instruction = yxl(literal)
     val s = state(0, 0, 0, 0)
     instruction(s, 0).get._1.y shouldBe 0
   }
@@ -63,13 +65,13 @@ class InstructionsTest extends AnyFlatSpec with Matchers:
   }
   // opCode 3
   "jnz with x = 0" should "not jump" in {
-    val instruction = jnz(identity)
+    val instruction = jnz(literal)
     val s = state(0, 0, 0, 0)
     instruction(s, 5).get._1 should not be 5
   }
 
   "jnz(operand=5) with x = 12" should "jump ip to 5" in {
-    val instruction = jnz(identity)
+    val instruction = jnz(literal)
     val s = state(1, 12, 0, 0)
     instruction(s, 5).get._1.ip shouldEqual 5
   }
@@ -111,13 +113,13 @@ class InstructionsTest extends AnyFlatSpec with Matchers:
   }
 
    "all instructions except jnz" should "increase ip by 2" in {
-     val instructions = List(xdv(testCombo), yxl(identity), yst(3, testCombo), yxz, out(3, testCombo),
+     val instructions = List(xdv(testCombo), yxl(literal), yst(3, testCombo), yxz, out(3, testCombo),
        ydv(testCombo), zdv(testCombo))
      val s = state(0,0,0,0)
      instructions foreach(_(s, 0).get._1.ip shouldBe 2)
    }
    "jnz, when x = 0" should "increase by 2 the ip" in {
-     val instruction = jnz(identity)
+     val instruction = jnz(literal)
      val s = state(0,0,0,0)
      instruction(s, 2).get._1.ip shouldBe 2
    }

@@ -1,6 +1,9 @@
-import RegistryOps.*
-import ThreeBitsState.Registry.*
-import ThreeBitsState.{Registry, ValueType}
+package threeBits
+
+import computer.*
+import threeBits.ThreeBitsState.Registry.*
+import threeBits.ThreeBitsState.{Registry, ValueType}
+import computer.RegistryOps.*
 
 import scala.math.pow
 import scala.util.Try

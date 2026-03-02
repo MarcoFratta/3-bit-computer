@@ -1,3 +1,5 @@
+package computer
+
 
 object Operands:
   // We choose which operand we want to use based on the value of the operand
@@ -11,6 +13,6 @@ object Operands:
 
   private def fromMap[S, R](overrides: Map[R, Operand[S, R]])(value: R): Operand[S, R] = value match
     case n if overrides isDefinedAt n => overrides(n)
-    case n => identity(n)
+    case n => literal(n)
 
-  def identity[S, R](value: R): Operand[S, R] = _ => value
+  def literal[S, R](value: R): Operand[S, R] = _ => value

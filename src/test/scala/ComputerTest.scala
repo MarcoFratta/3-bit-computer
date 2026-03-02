@@ -1,8 +1,10 @@
-import GuardedSequenceReader.{max, min, withGuards}
-import ThreeBitsState.State
+import computer.GuardedSequenceReader.{max, min, withGuards}
+import computer.SequenceReader
+import threeBits.ThreeBitsComputer
+import threeBits.ThreeBitsState.State
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import ThreeBitsState.state
+import threeBits.ThreeBitsState.state
 
 
 class ComputerTest extends AnyFlatSpec with Matchers:
