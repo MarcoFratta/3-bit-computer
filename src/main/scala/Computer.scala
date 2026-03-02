@@ -1,73 +1,30 @@
-import BaseState.IP
-
-import scala.util.{Failure, Success}
-import RegistryOps.*
-
-
+import scala.util.Try
+// given an input I from an input Reader, produces an output O
 trait Computer[I, O]:
   def compute(input: InputReader[I]): O
+// type class to add a registry to a computer state
+trait RegistryOps[S, K, V]:
+  extension (state: S)
+    def read(k: K): Option[V]
+    def write(updates: (K, V)*): S
+// type class to add an istruction pointer to a state
+trait IpOps[S]:
+  extension (state: S)
+    def ip: Int
+    def writeIp(v: Int): S
+// models different ways to map the input to the state
+// for example a combo operand 4, should select the X registry from the state
+trait Operand[S, R] extends (S => R)
 
-enum BaseState:
-  case IP
+// we model an instruction as an operation that
+// given a state S and an input I, produces an output O (we use Try since it can fail)
+trait Instruction[S, I, O] extends ((S, I) => Try[(S, Option[O])])
 
-object SingleOperandComputer:
+// a component that knows how to read the input at poisiton p
+// useful to abstract the computer type from the input 
+trait InputReader[T]:
+  def read(p: Int): Either[Error, Option[T]]
 
-  private def withErrorLogging[T](v: Either[Error, Option[T]]): Option[String] = v match
-    case Left(value) => Some(value.getMessage)
-    case Right(value) => Some(value.toString)
-
-  def ignoreErrors[S, I, O](instructions: Map[I, Instruction[S, I, O]])(initState: S)
-                           (using ip: IpOps[S]): Computer[I, Seq[O]] = i =>
-    LazyList.unfold(initState)(s => for
-      // read the opcode based on ip
-      opCode <- i.read(s.ip).toOption.flatten
-      // get the corresponding instruction
-      instruction <- instructions.get(opCode)
-      // read the second operand
-      operand <- i.read(s.ip + 1).toOption.flatten
-      // apply instruction with the given operand
-      (s2, out) <- instruction(s, operand).toOption
-    yield (out, s2)).flatten
-
-
-  def withLoopDetection[S, I, O](instructions: Map[I, Instruction[S, I, O]])(initState: S)
-                                (using ip: IpOps[S]): Computer[I, Seq[String]] = i =>
-    LazyList.unfold(Option(initState, Map[Int, S]()))(s => for
-      // reading na emtpy state will stop execution
-      (state, hist) <- s
-      r1 = i.read(state.ip)
-      r2 = i.read(state.ip + 1)
-    yield (r1, r2) match
-      case (Left(error), _) => (Option(error.getMessage), None)
-      case (_, Left(error)) => (Option(error.getMessage), None)
-      case (Right(Some(_)), Right(None)) => (Some(s"Unexpected end of input, expected operand at ${state.ip+1}"), None)
-      case (Right(Some(opCode)), Right(Some(operand))) => instructions.get(opCode).map(i =>
-        i(state, operand) match
-          case Failure(exception) => (Some(exception.getMessage), None)
-          case Success(v) if hist.isDefinedAt(state.ip) && hist(state.ip).equals(v._1) =>
-            (Some(s"Loop detected at ${state.ip}"), None)
-          case Success(v) => (v._2.map(_.toString), Some((v._1, hist + (state.ip -> v._1))))
-      ).getOrElse((Some(s"Instruction not found with OpCode $opCode"), None))
-      // gracefully stop execution
-      case _ => (None, None)).flatten
-
-
-  def withErrors[S, I, O](instructions: Map[I, Instruction[S, I, O]])(initState: S)
-                         (using ip: IpOps[S]): Computer[I, Seq[String]] = i =>
-    LazyList.unfold(Option(initState))(s => for
-      // reading na emtpy state will stop execution
-      state <- s
-      r1 = i.read(state.ip)
-      r2 = i.read(state.ip + 1)
-    yield (r1, r2) match
-      case (Left(error), _) => (Option(error.getMessage), None)
-      case (_, Left(error)) => (Option(error.getMessage), None)
-      case (Right(Some(_)), Right(None)) => (Some(s"Unexpected end of input, expected operand at ${state.ip+1}"), None)
-      case (Right(Some(opCode)), Right(Some(operand))) => instructions.get(opCode).map(i =>
-        i(state, operand) match {
-          case Failure(exception) => (Some(exception.getMessage), None)
-          case Success(v) =>  (v._2.map(_.toString), Some(v._1))
-        }
-      ).getOrElse((Some(s"Instruction not found with OpCode $opCode"), None))
-      // gracefully stop execution
-      case _ => (None, None)).flatten
+object RegistryOps:
+  extension [S](s: S)
+    def apply[K, V](k: K)(using ops: RegistryOps[S, K, V]): V = s.read(k).get

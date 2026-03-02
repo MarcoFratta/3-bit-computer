@@ -10,7 +10,8 @@ class ComputerTest extends AnyFlatSpec with Matchers:
   private def testInputOutput(i:String)(s:State, errors: Boolean = false) =
     val reader = SequenceReader(i.trim.split(','))
       .mapValues(_.toInt).withGuards + min(0) + max(7)
-    ThreeBitsComputerFacade(errors)(s).compute(reader)
+    if errors then ThreeBitsComputer.withLoopDetection(s).compute(reader)
+    else ThreeBitsComputer.ignoreErrors(s).compute(reader)
 
   "A computer program 1 " should "produce the correct output" in {
     val input =  "0,1,5,4,3,0"
@@ -61,12 +62,17 @@ class ComputerTest extends AnyFlatSpec with Matchers:
   "A computer program " should "detect loop that update registry before jumping back " in {
     val input = " 1,7,1,7,3,0"
     val initState = state(0, 1, 0, 0)
-    testInputOutput(input)(initState, true).last shouldEqual "Loop detected at 0"
+    testInputOutput(input)(initState, true).last shouldEqual "Loop detected at 2"
   }
-//  "A computer program " should "detect loops that are longer than 1" in {
-//    val input = " 1,1,3,0"
-//    val initState = state(0, 10, 0, 0)
-//    testInputOutput(input)(initState, true).last shouldEqual "Loop detected at 0"
-//  }
+  "A computer program " should "detect loops that are longer than 1" in {
+    val input = " 1,1,3,0"
+    val initState = state(0, 10, 0, 0)
+    testInputOutput(input)(initState, true).last shouldEqual "Loop detected at 2"
+  }
+  "A computer program " should "detect loops that are occurs at the start state" in {
+    val input = " 1,1,3,0"
+    val initState = state(0, 1, 0, 0)
+    testInputOutput(input)(initState, true).last shouldEqual "Loop detected at 2"
+  }
 
 

@@ -1,6 +1,6 @@
 import Operands.*
 import RegistryOps.*
-import ThreeBitsComputerFacade.threeBitCombo
+import ThreeBitsComputer.threeBitCombo
 import ThreeBitsState.Registry.*
 import ThreeBitsState.*
 import org.scalatest.flatspec.AnyFlatSpec
